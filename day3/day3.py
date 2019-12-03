@@ -1,7 +1,7 @@
 dxdy = {'U': (0, 1), 'R': (1, 0), 'D': (0, -1), 'L': (-1, 0)}
 
-# coords[(x, y)] = steps to reach (x, y)
 def get_coords(path):
+    # coords[(x, y)] = minimum number of steps to reach (x, y)
     coords = dict()
     x, y = 0, 0
     steps = 0
