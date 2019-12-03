@@ -17,12 +17,10 @@ def get_coords(path):
     return coords
 
 with open("input.txt") as file:
-    paths = [line.split(",") for line in file.readlines()]
-
-A = get_coords(paths[0])
-B = get_coords(paths[1])
+    A = get_coords(file.readline().split(","))
+    B = get_coords(file.readline().split(","))
 
 intersections = set(A.keys()) & set(B.keys())
 
-print('min distance', min([abs(x) + abs(y) for x, y in intersections]))
-print('min path length', min([A[(x, y)] + B[(x, y)] for x, y in intersections]))
+print('min distance', min(abs(x) + abs(y) for x, y in intersections))
+print('min path length', min(A[c] + B[c] for c in intersections))
