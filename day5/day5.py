@@ -1,14 +1,3 @@
-num_params = {
-    1: 3,
-    2: 3,
-    3: 1,
-    4: 1,
-    5: 2,
-    6: 2,
-    7: 3,
-    8: 3,
-    99: 0
-}
 
 def read(memory, ip, mode):
     return memory[memory[ip]] if mode == 0 else memory[ip]
@@ -37,7 +26,7 @@ def run(memory, input_val):
             # Parameter modes are single digits, one per parameter, read right-to-left from the opcode
             modes = list(map(int, opcode[::-1][2:]))
         # Any missing modes are 0 by default.
-        modes += [0] * (num_params[instruction] - len(modes))
+        modes += [0] * (4 - len(modes))
 
         if instruction == 99:
             break
