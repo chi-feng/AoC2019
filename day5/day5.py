@@ -10,6 +10,13 @@ num_params = {
     99: 0
 }
 
+def read(memory, ip, mode):
+    return memory[memory[ip]] if mode == 0 else memory[ip]
+
+def write(memory, ip, value):
+    address = memory[ip]
+    memory[address] = value
+
 def run(memory, input_val):
 
     outputs = []
@@ -36,57 +43,52 @@ def run(memory, input_val):
             break
 
         elif instruction == 1: # add
-            a = memory[memory[ip]] if modes[0] == 0 else memory[ip]
-            b = memory[memory[ip + 1]] if modes[1] == 0 else memory[ip + 1]
-            c = memory[ip + 2]
+            a = read(memory, ip, modes[0]) 
+            b = read(memory, ip + 1, modes[1])
+            write(memory, ip + 2, a + b)
             ip += 3
-            memory[c] = a + b
 
         elif instruction == 2: # multiply
-            a = memory[memory[ip]] if modes[0] == 0 else memory[ip]
-            b = memory[memory[ip + 1]] if modes[1] == 0 else memory[ip + 1]
-            c = memory[ip + 2]
+            a = read(memory, ip, modes[0]) 
+            b = read(memory, ip + 1, modes[1])
+            write(memory, ip + 2, a * b)
             ip += 3
-            memory[c] = a * b
         
         elif instruction == 3: # input
-            a = memory[ip]
+            write(memory, ip, input_val)
             ip += 1
-            memory[a] = input_val
 
         elif instruction == 4: # output
-            a = memory[memory[ip]] if modes[0] == 0 else memory[ip]
+            output = read(memory, ip, modes[0])
             ip += 1
-            print(a)
-            outputs.append(a)
+            print(output)
+            outputs.append(output)
 
         elif instruction == 5: # jump-if-true
-            a = memory[memory[ip]] if modes[0] == 0 else memory[ip]
-            b = memory[memory[ip + 1]] if modes[1] == 0 else memory[ip + 1]
+            a = read(memory, ip, modes[0]) 
+            b = read(memory, ip + 1, modes[1])
             ip = ip + 2
             if a != 0:
                 ip = b
 
         elif instruction == 6: # jump-if-false
-            a = memory[memory[ip]] if modes[0] == 0 else memory[ip]
-            b = memory[memory[ip + 1]] if modes[1] == 0 else memory[ip + 1]
+            a = read(memory, ip, modes[0]) 
+            b = read(memory, ip + 1, modes[1])
             ip = ip + 2
             if a == 0:
                 ip = b
 
         elif instruction == 7: # less than
-            a = memory[memory[ip]] if modes[0] == 0 else memory[ip]
-            b = memory[memory[ip + 1]] if modes[1] == 0 else memory[ip + 1]
-            c = memory[ip + 2]
+            a = read(memory, ip, modes[0]) 
+            b = read(memory, ip + 1, modes[1])
+            write(memory, ip + 2, 1 if a < b else 0)
             ip += 3
-            memory[c] = 1 if a < b else 0
 
         elif instruction == 8: # equals
-            a = memory[memory[ip]] if modes[0] == 0 else memory[ip]
-            b = memory[memory[ip + 1]] if modes[1] == 0 else memory[ip + 1]
-            c = memory[ip + 2]
+            a = read(memory, ip, modes[0]) 
+            b = read(memory, ip + 1, modes[1])
+            write(memory, ip + 2, 1 if a == b else 0)
             ip += 3
-            memory[c] = (a == b)        
 
     return outputs
 
