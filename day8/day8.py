@@ -46,3 +46,14 @@ matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 plt.spy(np.reshape(np.array(image), (n, m)))
 plt.savefig('image.png')
+
+'''
+1560
+█  █  ██   ██  █  █ █  █ 
+█  █ █  █ █  █ █  █ █  █ 
+█  █ █    █    █  █ ████ 
+█  █ █ ██ █    █  █ █  █ 
+█  █ █  █ █  █ █  █ █  █ 
+ ██   ███  ██   ██  █  █ 
+[Finished in 0.4s]
+'''
