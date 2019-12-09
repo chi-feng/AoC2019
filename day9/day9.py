@@ -1,16 +1,34 @@
-class Amplifier:
+
+class Computer:
     def __init__(self, program, input_queue=[]):
-        self.memory = program.copy()
+        self.memory = {i: v for i, v in enumerate(program)}
         self.input_queue = input_queue
         self.outputs = []
         self.ip = 0  # instruction pointer
         self.halted = False
+        self.relative_base = 0
 
     def read(self, ip, mode):
-        return self.memory[self.memory[ip]] if mode == 0 else self.memory[ip]
-
-    def write(self, ip, value):
-        self.memory[self.memory[ip]] = value
+        address = -1
+        if mode == 0:
+            address = self.memory[ip]
+        if mode == 1:
+            address = ip
+        if mode == 2:
+            address = self.memory[ip] + self.relative_base
+        if address not in self.memory:
+            self.memory[address] = 0
+        return self.memory[address]
+        
+    def write(self, ip, value, mode=0):
+        address = -1
+        if mode == 0:
+            address = self.memory[ip]
+        if mode == 1:
+            address = ip
+        if mode == 2:
+            address = self.memory[ip] + self.relative_base
+        self.memory[address] = value
 
     def run_until_halt(self, input_queue):
         self.input_queue += input_queue
@@ -35,8 +53,6 @@ class Amplifier:
         # Any missing modes are 0 by default.
         modes += [0] * (4 - len(modes))
 
-        print(instruction,''.join(map(str,modes)))
-
         if instruction == 99:
             self.ip = ip
             return ("halt", None)
@@ -44,13 +60,13 @@ class Amplifier:
         elif instruction == 1:  # add
             a = self.read(ip, modes[0])
             b = self.read(ip + 1, modes[1])
-            self.write(ip + 2, a + b)
+            self.write(ip + 2, a + b, modes[2])
             ip += 3
 
         elif instruction == 2:  # multiply
             a = self.read(ip, modes[0])
             b = self.read(ip + 1, modes[1])
-            self.write(ip + 2, a * b)
+            self.write(ip + 2, a * b, modes[2])
             ip += 3
 
         elif instruction == 3:  # input
@@ -59,7 +75,8 @@ class Amplifier:
                 # try again
                 return ("wait", None)
             else:
-                self.write(ip, self.input_queue.pop(0))
+                value = self.input_queue.pop(0)
+                self.write(ip, value, modes[0])
                 ip += 1
 
         elif instruction == 4:  # output
@@ -87,63 +104,36 @@ class Amplifier:
         elif instruction == 7:  # less than
             a = self.read(ip, modes[0])
             b = self.read(ip + 1, modes[1])
-            self.write(ip + 2, 1 if a < b else 0)
+            self.write(ip + 2, 1 if a < b else 0, modes[2])
             ip += 3
 
         elif instruction == 8:  # equals
             a = self.read(ip, modes[0])
             b = self.read(ip + 1, modes[1])
-            self.write(ip + 2, 1 if a == b else 0)
+            self.write(ip + 2, 1 if a == b else 0, modes[2])
             ip += 3
+
+        elif instruction == 9:  # adjust relative base offset
+            a = self.read(ip, modes[0])
+            self.relative_base += a
+            ip += 1
 
         self.ip = ip
         return ("ok", None)
 
-
-from itertools import permutations
-
 with open("input.txt") as file:
-    program = list(map(int, file.readline().split(",")))
+    program = [int(token.strip()) for token in file.readline().split(",")]
 
-# PART 1
+c = Computer(program)
+c.run_until_halt([1,])
+print(c.outputs)
 
-phases = [0, 1, 2, 3, 4]
-max_output = 0
-for phase_setting in permutations(phases):
-    amps = [Amplifier(program, input_queue=[phase_setting[i]]) for i in range(5)]
-    amps[0].run_until_halt([0])
-    # feed output from previous amp into current amp
-    for i in range(1, 5):
-        amps[i].run_until_halt([amps[i - 1].outputs[-1]])
-    # check if output from last amp is bigger tham max
-    if amps[-1].outputs[-1] > max_output:
-        max_output = amps[-1].outputs[-1]
-        print(max_output, phase_setting)
+c = Computer(program)
+c.run_until_halt([2,])
+print(c.outputs)
 
-# PART 2
-
-phases = [5, 6, 7, 8, 9]
-max_output = 0
-for phase_setting in permutations(phases):
-    # initialize amps
-    amps = [Amplifier(program, input_queue=[phase_setting[i]]) for i in range(5)]
-    amps[0].input_queue.append(0)  # amplifier A gets input signal 0
-    # run until all amps are halted
-    halted = [0] * 5
-    while sum(halted) < len(halted):
-        for i, amp in enumerate(amps):
-            while True:
-                status, value = amps[i].step()
-                if status == "halt":
-                    halted[i] = 1
-                    break
-                if status == "output":
-                    output_amp = amps[(i + 1) % 5]
-                    output_amp.input_queue.append(value)
-                    break
-                if status == "wait":
-                    break  # wait for input
-    # postcondition, all amps are halted, update max output
-    if amps[-1].outputs[-1] > max_output:
-        max_output = amps[-1].outputs[-1]
-        print(max_output, phase_setting)
+'''
+[3533056970]
+[72852]
+[Finished in 1.3s]
+'''
