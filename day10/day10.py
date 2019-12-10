@@ -2,7 +2,7 @@ import numpy as np
 
 asteroids = []
 
-with open("input2.txt") as file:
+with open("input.txt") as file:
     lines = file.readlines()
     xmax = len(lines[0].strip()) - 1
     ymax = len(lines) - 1
