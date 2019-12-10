@@ -68,4 +68,4 @@ while len(visible) > 0:
     visible = get_visible(asteroids, station)
 
 for i, target in enumerate(vaporized):
-    print(i+1, target)
+    print(i + 1, target)
