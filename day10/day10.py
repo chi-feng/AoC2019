@@ -8,12 +8,13 @@ with open("input.txt") as file:
     ymax = len(lines) - 1
     for i, line in enumerate(lines):
         for j, c in enumerate(line.strip()):
-            if c == '#':
-                asteroids.append((j,i))
+            if c == "#":
+                asteroids.append((j, i))
+
 
 def get_visible(asteroids, a):
     visible = {c: True for c in asteroids}
-    visible[a] = False # can't see itself 
+    visible[a] = False  # can't see itself
     for b in asteroids:
         dx = b[0] - a[0]
         dy = b[1] - a[1]
@@ -37,13 +38,15 @@ def get_visible(asteroids, a):
             x, y = b[0] + k * dx, b[1] + k * dy
     return {c for c in asteroids if visible[c]}
 
+
 visible_count = [len(get_visible(asteroids, a)) for a in asteroids]
 
 max_count = max(visible_count)
 station = asteroids[visible_count.index(max_count)]
-print(station, 'visible', max_count) # (29, 28), 256
+print(station, "visible", max_count)  # (29, 28), 256
 
 # laser time
+
 
 def get_angle(a, b):
     dx = a[0] - b[0]
@@ -53,11 +56,14 @@ def get_angle(a, b):
         v += 2 * np.pi
     return v
 
+
 visible = get_visible(asteroids, station)
 angle = 0
 vaporized = []
 while len(visible) > 0:
-    angles = {a: get_angle(a, station) for a in visible if get_angle(a, station) >= angle}
+    angles = {
+        a: get_angle(a, station) for a in visible if get_angle(a, station) >= angle
+    }
     targets = sorted(angles, key=angles.get)
     vaporized.append(targets[0])
     asteroids.remove(targets[0])

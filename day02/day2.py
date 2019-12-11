@@ -4,7 +4,7 @@ def run(memory):
         instruction = memory[ip]
         if instruction == 99:
             break
-        (in1, in2, out) = memory[ip + 1:ip + 4]
+        (in1, in2, out) = memory[ip + 1 : ip + 4]
         if instruction == 1:
             memory[out] = memory[in1] + memory[in2]
         if instruction == 2:
@@ -14,7 +14,7 @@ def run(memory):
 
 
 # [3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50]
-print(run([1,9,10,3,2,3,11,0,99,30,40,50])) 
+print(run([1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50]))
 
 with open("input.txt") as file:
     line = file.readline()
@@ -29,13 +29,14 @@ print(run(memory.copy()))
 
 
 def find_inputs(memory, target):
-    for noun in range(0,100):
-        for verb in range(0,100):
+    for noun in range(0, 100):
+        for verb in range(0, 100):
             memory[1] = noun
             memory[2] = verb
             output = run(memory.copy())[0]
             if output == target:
                 return (noun, verb)
+
 
 # (12, 2)
 print(find_inputs(memory, 4576384))

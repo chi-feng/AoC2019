@@ -1,14 +1,16 @@
 import sys
-sys.path.append('../')
+
+sys.path.append("../")
 from shared import intcode
 
-class Robot:
 
+class Robot:
     def __init__(self, program):
-        self.program = program;
+        self.program = program
         self.computer = intcode.VM(program)
-        self.direction = 0; # north
-        self.dxdy = {0:(0,1),1:(1,0),2:(0,-1),3:(-1,0)}
+        self.direction = 0
+        # north
+        self.dxdy = {0: (0, 1), 1: (1, 0), 2: (0, -1), 3: (-1, 0)}
         self.x = 0
         self.y = 0
 
@@ -31,25 +33,25 @@ class Robot:
         self.y += dy
 
 
-program = list(map(int, open("input.txt").readline().strip().split(',')))
+program = list(map(int, open("input.txt").readline().strip().split(",")))
 
 r = Robot(program)
 
 colors = dict()
-colors[(0,0)] = 1;
+colors[(0, 0)] = 1
 
-painted_panels = set();
+painted_panels = set()
 
 while True:
 
     color = colors.get((r.x, r.y), 0)
 
-    print(f'({r.x:2d}, {r.y:2d}) direction {r.direction} input {color}', end=' ')
+    print(f"({r.x:2d}, {r.y:2d}) direction {r.direction} input {color}", end=" ")
     outputs = r.send_color(color)
 
     paint_color, direction = outputs[0], outputs[1]
-    print(f"output {outputs}", end=' ')
-    print('paint', color, '->', paint_color)
+    print(f"output {outputs}", end=" ")
+    print("paint", color, "->", paint_color)
 
     colors[(r.x, r.y)] = paint_color
 
@@ -67,11 +69,13 @@ while True:
 
 print(len(painted_panels))
 
-import matplotlib 
-matplotlib.use('Agg')
+import matplotlib
+
+matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+
 white = [k for k, v in colors.items() if v == 1]
-x , y = zip(*white)
-plt.figure(figsize=(4,0.6))
-plt.plot(x, y, 'ko')
-plt.savefig('output.png')
+x, y = zip(*white)
+plt.figure(figsize=(4, 0.6))
+plt.plot(x, y, "ko")
+plt.savefig("output.png")

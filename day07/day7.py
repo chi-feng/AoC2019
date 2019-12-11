@@ -35,7 +35,7 @@ class Amplifier:
         # Any missing modes are 0 by default.
         modes += [0] * (4 - len(modes))
 
-        print(instruction,''.join(map(str,modes)))
+        print(instruction, "".join(map(str, modes)))
 
         if instruction == 99:
             self.ip = ip
