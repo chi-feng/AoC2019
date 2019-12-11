@@ -1,3 +1,6 @@
+# plot image
+import numpy as np
+
 with open("input.txt") as file:
     s = file.readline().strip()
 
@@ -39,8 +42,7 @@ for i in range(n):
             print(" ", end="")
     print("")
 
-# plot image
-import numpy as np
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -51,11 +53,11 @@ plt.savefig("image.png")
 
 """
 1560
-█  █  ██   ██  █  █ █  █ 
-█  █ █  █ █  █ █  █ █  █ 
-█  █ █    █    █  █ ████ 
-█  █ █ ██ █    █  █ █  █ 
-█  █ █  █ █  █ █  █ █  █ 
- ██   ███  ██   ██  █  █ 
+█  █  ██   ██  █  █ █  █
+█  █ █  █ █  █ █  █ █  █
+█  █ █    █    █  █ ████
+█  █ █ ██ █    █  █ █  █
+█  █ █  █ █  █ █  █ █  █
+ ██   ███  ██   ██  █  █
 [Finished in 0.4s]
 """

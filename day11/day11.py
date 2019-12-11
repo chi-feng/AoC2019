@@ -3,6 +3,7 @@ import sys
 sys.path.append("../")
 from shared import intcode
 
+
 class Robot:
     def __init__(self, program):
         self.program = program

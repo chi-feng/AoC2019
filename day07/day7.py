@@ -1,3 +1,6 @@
+from itertools import permutations
+
+
 class Amplifier:
     def __init__(self, program, input_queue=[]):
         self.memory = program.copy()
@@ -99,8 +102,6 @@ class Amplifier:
         self.ip = ip
         return ("ok", None)
 
-
-from itertools import permutations
 
 with open("input.txt") as file:
     program = list(map(int, file.readline().split(",")))

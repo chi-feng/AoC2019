@@ -1,8 +1,8 @@
 import sys
+from shared.intcode import VM
 
 sys.path.append("../")
 
-from shared.intcode import VM
 
 with open("input.txt") as file:
     program = [int(token.strip()) for token in file.readline().split(",")]

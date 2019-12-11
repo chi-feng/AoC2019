@@ -75,6 +75,6 @@ def test_boost():
     vm = VM(program)
     outputs = vm.run([1])
     assert outputs == [3533056970]
-    # vm = VM(program)
-    # outputs = vm.run([2])
-    # assert outputs == [72852]
+    vm = VM(program)
+    outputs = vm.run([2])
+    assert outputs == [72852]

@@ -4,7 +4,8 @@ def run(memory):
         instruction = memory[ip]
         if instruction == 99:
             break
-        (in1, in2, out) = memory[ip + 1 : ip + 4]
+        start, end = ip + 1, ip + 4
+        (in1, in2, out) = memory[start:end]
         if instruction == 1:
             memory[out] = memory[in1] + memory[in2]
         if instruction == 2:
