@@ -1,6 +1,8 @@
 import sys
 
 sys.path.append("../")
+
+print(sys.path)
 from shared import intcode
 
 
