@@ -1,12 +1,22 @@
 class VM:
-    def __init__(self, program=[]):
-        self.load(program)
+    def __init__(self):
+        pass
 
     def load(self, program):
         self.memory = {i: v for i, v in enumerate(program)}
         self.ip = 0  # reset instruction pointer
         self.relative_base = 0  # for relative mode access
-        self.status = 0  # 1: halted, 2: waiting for input
+        self.OKAY = 0
+        self.HALT = 1
+        self.WAIT = 2
+        self.status = self.OKAY
+        self.inputs = []
+        self.outputs = []
+
+    def load_file(self, filename):
+        with open(filename, "r") as f:
+            program = map(int, f.readline().strip().split(","))
+            self.load(program)
 
     def read(self, ip, mode):
         address = -1
