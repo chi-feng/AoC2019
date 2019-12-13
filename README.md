@@ -5,10 +5,13 @@
 
 Python solutions for [Advent of Code 2019](https://adventofcode.com/2019)
 
-## Setup
+<details>
+<summary>Installation</summary>
+  
 ```
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install --upgrade pip
-pythone -m pip install -r requirements.txt
+python3-m pip install -r requirements.txt
 ```
+</details>
