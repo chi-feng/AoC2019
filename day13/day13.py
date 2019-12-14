@@ -20,7 +20,7 @@ def part1():
             x, y, t = vm.outputs
             screen[(x, y)] = t
             vm.outputs = []
-97        if status == vm.HALT:
+        if status == vm.HALT:
             break
     return sum(v == 2 for k, v in screen.items())
 
