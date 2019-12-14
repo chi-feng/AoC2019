@@ -1,26 +1,29 @@
 import os
 import math
+from collections import defaultdict
 
 
 def read_input(filename):
-    recipes = dict()  # product -> (ingredients, nproducts)
+    # INPUT: "1 A, 2 B => 3 C"
+    # OUTPUT: recipes["C"] = (3, {"A": 1, "B": 2})
+    recipes = dict()
     dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, filename)
-    with open(filename) as file:
-        lines = file.read().splitlines()
-        for line in lines:
-            ingredients = dict()
+    with open(os.path.join(dirname, filename)) as file:
+        for line in file.read().splitlines():
             left, right = line.split(" => ")
-            for token in left.split(", "):
-                count, label = token.split(" ")
-                ingredients[label] = int(count)
+            ingredients = {
+                token.split(" ")[1]: int(token.split(" ")[0])
+                for token in left.split(", ")
+            }
             count, product = right.split(" ")
             recipes[product] = (int(count), ingredients)
     return recipes
 
 
 def get_required_ore(recipes, fuel):
-    required = {"FUEL": fuel}
+    # satisfy each requirement and treat products as negative requirements
+    # terminate when all requirements are satisfied
+    required = defaultdict(int, {"FUEL": fuel})
     while True:
         missing = {
             chemical: required[chemical]
@@ -28,15 +31,13 @@ def get_required_ore(recipes, fuel):
             if chemical != "ORE" and required[chemical] > 0
         }
         if len(missing) == 0:
-            break  # we're done if the only requirement left is ORE
+            break
         for product in missing:
             product_count, ingredients_dict = recipes[product]
             n = math.ceil(missing[product] / product_count)
             required[product] -= n * product_count
             for ingredient, ingredient_count in ingredients_dict.items():
-                required[ingredient] = (
-                    required.get(ingredient, 0) + n * ingredient_count
-                )
+                required[ingredient] += n * ingredient_count
     return required["ORE"]
 
 
@@ -48,22 +49,15 @@ def part1(filename):
 def part2(filename):
     recipes = read_input(filename)
     budget = 10 ** 12
-    lb = get_required_ore(recipes, 1)
-    # first find lower and upper bound
-    a = lb
-    b = 2 * lb
-    while get_required_ore(recipes, b) < budget:
-        a = b
-        b *= 2
-    # postcondition: a is below budget, b is above budget
-    # binary search to find a, b closest to budget
-    while b - a > 1:
-        half = a + (b - a) // 2
-        if get_required_ore(recipes, half) > budget:
-            b = half
-        else:
-            a = half
-    return a
+    fuel = budget // get_required_ore(recipes, 1)
+    while True:
+        cost = get_required_ore(recipes, fuel)
+        avg_cost = cost // fuel
+        increment = (budget - cost) // avg_cost
+        if increment == 0:
+            break
+        fuel += increment
+    return fuel
 
 
 if __name__ == "__main__":
