@@ -1,4 +1,7 @@
+import os
 import sys
+
+dirname = os.path.dirname(__file__)
 
 sys.path.append("../")
 
@@ -9,7 +12,8 @@ from shared import intcode
 class Robot:
     def __init__(self, program):
         self.program = program
-        self.computer = intcode.VM(program)
+        self.computer = intcode.VM()
+        self.computer.load(program)
         self.direction = 0
         # north
         self.dxdy = {0: (0, 1), 1: (1, 0), 2: (0, -1), 3: (-1, 0)}
@@ -35,7 +39,8 @@ class Robot:
         self.y += dy
 
 
-program = list(map(int, open("input.txt").readline().strip().split(",")))
+filename = os.path.join(dirname, "input.txt")
+program = list(map(int, open(filename).readline().strip().split(",")))
 
 r = Robot(program)
 

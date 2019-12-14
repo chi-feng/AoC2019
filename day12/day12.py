@@ -1,3 +1,4 @@
+import os
 from math import gcd
 from functools import reduce
 import numpy as np
@@ -12,6 +13,8 @@ class Moon:
 def read_input(filename):
     """Read input file where each line is in the format `<x=-1, y=0, z=2>`"""
     moons = []
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, filename)
     with open(filename, "r") as file:
         for line in file.readlines():
             tokens = line.strip()[1:-1].split(", ")
