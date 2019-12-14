@@ -1,4 +1,4 @@
-from .day14 import part1, part2
+from day14 import part1, part2
 
 def test_part1():
     assert part1("test1.txt") == 13312
