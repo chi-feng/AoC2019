@@ -1,4 +1,4 @@
-from intcode import VM
+from .intcode import VM
 
 
 def test_relative_mode_quine():
