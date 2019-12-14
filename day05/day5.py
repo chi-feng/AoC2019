@@ -16,18 +16,17 @@ def run(memory, input_val):
     while True:
 
         # read opcode and increment pointer
-        opcode = str(memory[ip])
+        opcode = memory[ip]
         ip += 1
 
-        # get instruction and modes and from opcode
-        instruction = int(opcode)
+        # opcode 1203 -> instruction = 03, modes = [0, 2, 1]
+        instruction = opcode % 100
+        modesetting = opcode // 100
         modes = []
-        if len(opcode) >= 2:
-            instruction = int(opcode[-2:])
-            # Parameter modes are single digits, one per parameter, read right-to-left from the opcode
-            modes = list(map(int, opcode[::-1][2:]))
-        # Any missing modes are 0 by default.
-        modes += [0] * (4 - len(modes))
+        for _ in range(3):  # 3 is max number of params
+            mode = modesetting % 10
+            modes.append(mode)
+            modesetting //= 10
 
         if instruction == 99:
             break

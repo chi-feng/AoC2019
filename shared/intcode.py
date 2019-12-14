@@ -65,7 +65,7 @@ class VM:
         instruction = opcode % 100
         modesetting = opcode // 100
         modes = []
-        for i in range(3):  # 3 is max number of params
+        for _ in range(3):  # 3 is max number of params
             mode = modesetting % 10
             modes.append(mode)
             modesetting //= 10
