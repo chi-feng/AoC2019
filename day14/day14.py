@@ -1,116 +1,71 @@
 import os
-import sys
 import math
-import numpy as np
-
-
-class Reaction:
-    def __init__(self, reagents, products):
-        self.reagents = reagents
-        self.products = products
-
-    def __repr__(self):
-        return f"{self.reagents} => {self.products}"
 
 
 def read_input(filename):
+    recipes = dict()  # product -> (ingredients, nproducts)
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, filename)
-    reactions = []
     with open(filename) as file:
         lines = file.read().splitlines()
         for line in lines:
-            reagents = dict()
-            products = dict()
+            ingredients = dict()
             left, right = line.split(" => ")
-            reagent_tokens = left.split(", ")
-            for token in reagent_tokens:
+            for token in left.split(", "):
                 count, label = token.split(" ")
-                reagents[label] = int(count)
-            product_tokens = right.split(", ")
-            for token in product_tokens:
-                count, label = token.split(" ")
-                products[label] = int(count)
-            reaction = Reaction(reagents, products)
-            reactions.append(reaction)
-    return reactions
+                ingredients[label] = int(count)
+            count, product = right.split(" ")
+            recipes[product] = (int(count), ingredients)
+    return recipes
 
 
-def find_rx(reactions, product):
-    for i, rx in enumerate(reactions):
-        if product in rx.products:
-            return i, rx
+def get_required_ore(recipes, fuel):
+    required = {"FUEL": fuel}
+    while True:
+        missing = {
+            chemical: required[chemical]
+            for chemical in required
+            if chemical != "ORE" and required[chemical] > 0
+        }
+        if len(missing) == 0:
+            break  # we're done if the only requirement left is ORE
+        for product in missing:
+            product_count, ingredients_dict = recipes[product]
+            n = math.ceil(missing[product] / product_count)
+            required[product] -= n * product_count
+            for ingredient, ingredient_count in ingredients_dict.items():
+                required[ingredient] = (
+                    required.get(ingredient, 0) + n * ingredient_count
+                )
+    return required["ORE"]
 
 
 def part1(filename):
-    reactions = read_input(filename)
+    recipes = read_input(filename)
+    return get_required_ore(recipes, 1)
 
-    missing = {"FUEL": 1}
-    intermediates = dict()
 
-    def run_rx(rx_id, rx, n):
-        nonlocal missing
-        nonlocal intermediates
-        # print(f'Running {n:4d} x {rx}')
-        for chem, count in rx.products.items():
-            intermediates[chem] = intermediates.get(chem, 0) + n * count
-        for chem, count in rx.reagents.items():
-            missing[chem] = missing.get(chem, 0) + n * count
-        # now do some accounting
-        for chem, count in missing.items():
-            if count == 0:
-                continue
-            if chem == "ORE":
-                continue
-            # check if it's present in intermediate products
-            if intermediates.get(chem, 0) > 0:
-                missing[chem] -= min(intermediates[chem], count)
-                intermediates[chem] -= min(intermediates[chem], count)
-
-    while True:
-        chems = [key for key in missing.keys() if missing[key] > 0]
-        if len(chems) == 1 and chems[0] == "ORE":
-            break
-        for chem in chems:
-            if chem == "ORE":
-                continue
-            count = missing[chem]
-            # find reaction that produces missing chemical
-            rx_id, rx = find_rx(reactions, chem)
-            # how many times we need to run the reaction
-            n = math.ceil(count / rx.products[chem])
-            # run the reaction
-            run_rx(rx_id, rx, n)
-
-    print("missing", [(k, v) for (k, v) in missing.items() if v > 0])
-    print("intermediates", [(k, v) for (k, v) in intermediates.items() if v > 0])
-
-    simple_cost = missing["ORE"]
-    budget = 1000000000000
-    missing = {"FUEL": int(1.654 * budget // simple_cost)}
-    fuel_created = missing["FUEL"]
-    intermediates = dict()
-
-    while True:
-        chems = [key for key in missing.keys() if missing[key] > 0]
-        if len(chems) == 1 and chems[0] == "ORE":
-            print(budget - missing["ORE"])
-            if missing["ORE"] > budget:
-                break
-            fuel_created += 1
-            missing["FUEL"] = 1
-        for chem in chems:
-            if chem == "ORE":
-                continue
-            count = missing[chem]
-            # find reaction that produces missing chemical
-            rx_id, rx = find_rx(reactions, chem)
-            # how many times we need to run the reaction
-            n = math.ceil(count / rx.products[chem])
-            # run the reaction
-            run_rx(rx_id, rx, n)
-    print(fuel_created - 1)
+def part2(filename):
+    recipes = read_input(filename)
+    budget = 10 ** 12
+    lb = get_required_ore(recipes, 1)
+    # first find lower and upper bound
+    a = lb
+    b = 2 * lb
+    while get_required_ore(recipes, b) < budget:
+        a = b
+        b *= 2
+    # postcondition: a is below budget, b is above budget
+    # binary search to find a, b closest to budget
+    while b - a > 1:
+        half = a + (b - a) // 2
+        if get_required_ore(recipes, half) > budget:
+            b = half
+        else:
+            a = half
+    return a
 
 
 if __name__ == "__main__":
-    part1("input.txt")
+    print(part1("input.txt"))  # 873899
+    print(part2("input.txt"))  # 1893569
