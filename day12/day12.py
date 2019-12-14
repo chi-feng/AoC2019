@@ -83,4 +83,5 @@ if __name__ == "__main__":
     print(part1("input.txt", 1000))  # 8044
 
     assert part2("test1.txt") == 2772
+    print(part2("test2.txt"))
     print(part2("input.txt"))  # 362375881472136
