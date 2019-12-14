@@ -86,7 +86,7 @@ def animate(stdscr):
                 win.addch(y + 1, x, charcode[screen[x, y]])
             win.addstr(0, 0, f"SCORE: {score}")
             win.refresh()
-            time.sleep(0.016)
+            time.sleep(0.015)
         if status == vm.HALT:
             break
     # Clean up before exiting
