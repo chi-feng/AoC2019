@@ -13,8 +13,6 @@ jobs:
         - pip install -r requirements.txt
       script:
         - pytest -ra --cov=.
-      after_success:
-        - codecov
 
     - name: "Lint: black (Python 3.6)"
       python: "3.6"
@@ -30,5 +28,8 @@ jobs:
       script:
         - flake8 --isolated --ignore=E302,E402,E501
 
+  after_success:
+    - codecov
+    
 stages:
   - name: Test
