@@ -18,6 +18,16 @@ class VM:
             program = map(int, f.readline().strip().split(","))
             self.load(program)
 
+    def copy(self):
+        vm = VM()
+        vm.load([99])
+        vm.memory = {k: v for k, v in self.memory.items()}
+        vm.ip = self.ip
+        vm.relative_base = self.relative_base
+        vm.status = self.status
+        vm.inputs = self.inputs.copy()
+        vm.outputs = self.outputs.copy()
+
     def read(self, ip, mode):
         address = -1
         if mode == 0:  # position
