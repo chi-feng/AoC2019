@@ -106,14 +106,17 @@ def get_distances(maze, start):
 
 def plot_distances(maze, distances):
     import matplotlib
-    matplotlib.use('Agg')
+
+    matplotlib.use("Agg")
     from matplotlib import pyplot as plt
+
     x, y = zip(*maze.keys())
     xmin, xmax = min(x), max(x)
     ymin, ymax = min(y), max(y)
     rows = ymax - ymin + 1
     cols = xmax - xmin + 1
     import numpy as np
+
     Z = np.zeros((rows, cols))
     target = None
     for row in range(rows):
@@ -131,7 +134,7 @@ def plot_distances(maze, distances):
     plt.colorbar()
     plt.plot(target[0], target[1], "ro")
     # plt.show()
-    plt.savefig('day15.png')
+    plt.savefig("day15.png")
 
 
 def part1(filename):
@@ -160,7 +163,7 @@ if __name__ == "__main__":
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, "input.txt")
     part1(filename)
-    '''
+    """
     Found Oxygen System at (-16, 12)
     Shortest path 241
     ██████████████████████████████████████████████████████████████████████████████████
@@ -205,5 +208,4 @@ if __name__ == "__main__":
     ██          ██                          ██          ██      ██          ██      ██
     ██████████████████████████████████████████████████████████████████████████████████
     Max distance from OS: 322
-    '''
-
+    """
