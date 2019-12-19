@@ -3,3 +3,4 @@ __pycache__
 .coverage
 .venv
 .pytest_cache
+.cprof

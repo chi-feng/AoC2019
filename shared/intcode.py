@@ -20,13 +20,14 @@ class VM:
 
     def copy(self):
         vm = VM()
-        vm.load([99])
-        vm.memory = {k: v for k, v in self.memory.items()}
+        vm.load([])
+        vm.memory = self.memory.copy()
         vm.ip = self.ip
         vm.relative_base = self.relative_base
         vm.status = self.status
         vm.inputs = self.inputs.copy()
         vm.outputs = self.outputs.copy()
+        return vm
 
     def read(self, ip, mode):
         address = -1
@@ -74,12 +75,11 @@ class VM:
         opcode = self.memory[self.ip]
         instruction = opcode % 100
         modesetting = opcode // 100
-        modes = []
-        for _ in range(3):  # 3 is max number of params
+        modes = [0] * 3
+        for i in range(3):  # 3 is max number of params
             mode = modesetting % 10
-            modes.append(mode)
+            modes[i] = mode
             modesetting //= 10
-        # print(f"{instruction:2d} {modes}")
         # run instruction and update status
         self.status = 0  # 1: halt, 2: wait for input
         if instruction == 99:  # halt
