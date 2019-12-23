@@ -18,4 +18,3 @@ for line in lines:
         raise Exception("bad instruction")
 
 print(deck.index(2019))
-

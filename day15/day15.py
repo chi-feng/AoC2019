@@ -39,15 +39,15 @@ def boxdraw_nesw(mask, curved=False, bold=False):
     }
 
     if curved:
-        boxdraw[(True, False, False, True)]  = '╯'
-        boxdraw[(False, True, True, False)]  = '╭'
-        boxdraw[(False, False, True, True)]  = '╮'
-        boxdraw[(True, True, False, False)]  = '╰'
-    
-    boxdraw[(True, False, False, False)]  = '│'
-    boxdraw[(False, True, False, False)]  = '─'
-    boxdraw[(False, False, True, False)]  = '│'
-    boxdraw[(False, False, False, True)]  = '─'
+        boxdraw[(True, False, False, True)] = "╯"
+        boxdraw[(False, True, True, False)] = "╭"
+        boxdraw[(False, False, True, True)] = "╮"
+        boxdraw[(True, True, False, False)] = "╰"
+
+    boxdraw[(True, False, False, False)] = "│"
+    boxdraw[(False, True, False, False)] = "─"
+    boxdraw[(False, False, True, False)] = "│"
+    boxdraw[(False, False, False, True)] = "─"
 
     if bold:
         boxdraw = {
@@ -85,13 +85,16 @@ def draw_maze(maze, path=[], node=None, direction=None):
             nesw = [(x, y + 1), (x + 1, y), (x, y - 1), (x - 1, y)]
             ch = "┼"
             if cell == PATH:
-                ch = ' '
+                ch = " "
             if cell == WALL:
-                mask = tuple(n in maze and (maze[n] == WALL or maze[n] == UNEXPLORED) for n in nesw)
+                mask = tuple(
+                    n in maze and (maze[n] == WALL or maze[n] == UNEXPLORED)
+                    for n in nesw
+                )
                 ch = boxdraw_nesw(mask, curved=True)
             if cell == UNEXPLORED:
                 if any(n in maze and maze[n] == UNEXPLORED for n in nesw):
-                    ch = ' '
+                    ch = " "
                 else:
                     mask = tuple(n in maze and maze[n] == WALL for n in nesw)
                     ch = boxdraw_nesw(mask, curved=True)
@@ -278,5 +281,5 @@ if __name__ == "__main__":
     │   │ │   │       │   │   │ │   │ │ │   │
     │ ──╯ ├── ╰───────╯ │ ╰── │ │ │ ╰─╯ ├── │
     │     │             │     │   │     │   │
-    ╰─────┴─────────────┴─────┴───┴─────┴───╯    
+    ╰─────┴─────────────┴─────┴───┴─────┴───╯
     """
