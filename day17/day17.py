@@ -1,9 +1,5 @@
 import sys
 import os
-import math
-import numpy as np
-import time
-from collections import defaultdict
 
 sys.path.append("../")
 from shared import intcode
@@ -147,14 +143,14 @@ def find_subroutines(instructions):
             fragment = []
             shortest = [0] * n
             for i in range(n):
-                if covered[i] == True:
+                if covered[i] is True:
                     if len(fragment) > 0:
                         fragments.append(fragment.copy())
                         if len(fragment) < len(shortest):
                             shortest = fragment.copy()
                     else:
                         continue
-                if covered[i] == False:
+                if covered[i] is False:
                     fragment.append(instructions[i])
             # check if the shortest fragment covers longer fragments
             valid = True

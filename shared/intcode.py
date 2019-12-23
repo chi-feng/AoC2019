@@ -42,9 +42,7 @@ class VM:
         if address < 0:
             raise LookupError(f"invalid memory address: {address}")
         # default value is zero
-        if address not in self.memory:
-            self.memory[address] = 0
-        return self.memory[address]
+        return self.memory.get(address, 0)
 
     def write(self, ip, value, mode=0):
         address = -1
@@ -61,11 +59,10 @@ class VM:
         self.memory[address] = value
 
     def run(self, inputs=[]):
-        self.inputs = inputs
-        self.outputs = []
+        if inputs:
+            self.inputs = inputs
         while True:
-            self.step()
-            if self.status > 0:
+            if self.step() != self.OKAY:
                 break
         return self.outputs
 
@@ -80,10 +77,10 @@ class VM:
             mode = modesetting % 10
             modes[i] = mode
             modesetting //= 10
-        # run instruction and update status
-        self.status = 0  # 1: halt, 2: wait for input
+
+        self.status = self.OKAY  # 1: halt, 2: wait for input
         if instruction == 99:  # halt
-            self.status = 1
+            self.status = self.HALT
         elif instruction == 1:  # add
             a = self.read(self.ip + 1, modes[0])
             b = self.read(self.ip + 2, modes[1])
@@ -96,7 +93,7 @@ class VM:
             self.ip += 4
         elif instruction == 3:  # input
             if len(self.inputs) == 0:  # ran out of inputs!
-                self.status = 2
+                self.status = self.WAIT
             else:
                 value = self.inputs.pop(0)
                 self.write(self.ip + 1, value, modes[0])
@@ -108,13 +105,13 @@ class VM:
         elif instruction == 5:  # jump-if-true
             a = self.read(self.ip + 1, modes[0])
             b = self.read(self.ip + 2, modes[1])
-            self.ip = self.ip + 3
+            self.ip += 3
             if a != 0:
                 self.ip = b
         elif instruction == 6:  # jump-if-false
             a = self.read(self.ip + 1, modes[0])
             b = self.read(self.ip + 2, modes[1])
-            self.ip = self.ip + 3
+            self.ip += 3
             if a == 0:
                 self.ip = b
         elif instruction == 7:  # less than
@@ -131,4 +128,6 @@ class VM:
             a = self.read(self.ip + 1, modes[0])
             self.relative_base += a
             self.ip += 2
+        else:
+            raise ValueError(f"invalid instruction: {instruction}")
         return self.status

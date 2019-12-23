@@ -28,6 +28,6 @@ jobs:
       install:
         - pip install flake8
       script:
-        - flake8 --isolated --ignore=E302,E402,E501
+        - flake8 --isolated --ignore=E203,E302,E402,E501
 stages:
   - name: Test

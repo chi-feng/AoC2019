@@ -1,7 +1,6 @@
 import sys
 import os
 from collections import defaultdict
-import curses
 import time
 
 
@@ -19,6 +18,60 @@ WEST = 3
 EAST = 4
 
 
+def boxdraw_nesw(mask, curved=False, bold=False):
+    boxdraw = {
+        (False, False, False, False): " ",
+        (False, False, False, True): "╴",
+        (False, False, True, False): "╷",
+        (False, False, True, True): "┐",
+        (False, True, False, False): "╶",
+        (False, True, False, True): "─",
+        (False, True, True, False): "┌",
+        (False, True, True, True): "┬",
+        (True, False, False, False): "╵",
+        (True, False, False, True): "┘",
+        (True, False, True, False): "│",
+        (True, False, True, True): "┤",
+        (True, True, False, False): "└",
+        (True, True, False, True): "┴",
+        (True, True, True, False): "├",
+        (True, True, True, True): "┼",
+    }
+
+    if curved:
+        boxdraw[(True, False, False, True)]  = '╯'
+        boxdraw[(False, True, True, False)]  = '╭'
+        boxdraw[(False, False, True, True)]  = '╮'
+        boxdraw[(True, True, False, False)]  = '╰'
+    
+    boxdraw[(True, False, False, False)]  = '│'
+    boxdraw[(False, True, False, False)]  = '─'
+    boxdraw[(False, False, True, False)]  = '│'
+    boxdraw[(False, False, False, True)]  = '─'
+
+    if bold:
+        boxdraw = {
+            (False, False, False, False): " ",
+            (False, False, False, True): "╸",
+            (False, False, True, False): "╻",
+            (False, False, True, True): "┓",
+            (False, True, False, False): "╺",
+            (False, True, False, True): "━",
+            (False, True, True, False): "┏",
+            (False, True, True, True): "┳",
+            (True, False, False, False): "╹",
+            (True, False, False, True): "┛",
+            (True, False, True, False): "┃",
+            (True, False, True, True): "┫",
+            (True, True, False, False): "┗",
+            (True, True, False, True): "┻",
+            (True, True, True, False): "┣",
+            (True, True, True, True): "╋",
+        }
+
+    return boxdraw[mask]
+
+
 def draw_maze(maze, path=[], node=None, direction=None):
     x, y = zip(*maze.keys())
     xmin, xmax = min(x), max(x)
@@ -29,18 +82,27 @@ def draw_maze(maze, path=[], node=None, direction=None):
             x = col + xmin
             y = ymax - row
             cell = maze[(x, y)]
-            ch = "░"
+            nesw = [(x, y + 1), (x + 1, y), (x, y - 1), (x - 1, y)]
+            ch = "┼"
             if cell == PATH:
-                ch = " "
+                ch = ' '
             if cell == WALL:
-                ch = "█"
-            if (x, y) in path:
-                ch = "·"
+                mask = tuple(n in maze and (maze[n] == WALL or maze[n] == UNEXPLORED) for n in nesw)
+                ch = boxdraw_nesw(mask, curved=True)
+            if cell == UNEXPLORED:
+                if any(n in maze and maze[n] == UNEXPLORED for n in nesw):
+                    ch = ' '
+                else:
+                    mask = tuple(n in maze and maze[n] == WALL for n in nesw)
+                    ch = boxdraw_nesw(mask, curved=True)
             if cell == TARGET:
                 ch = "B"
             if (x, y) == (0, 0):
                 ch = "A"
-            if node and (x, y) == node:
+            if (x, y) in path:
+                mask = tuple(n in maze and n in path for n in nesw)
+                ch = boxdraw_nesw(mask, bold=True)
+            if (x, y) == node:
                 chdir = {NORTH: "▲", EAST: "►", SOUTH: "▼", WEST: "◄"}
                 ch = chdir[direction]
             # print(ch, end="")
@@ -66,18 +128,15 @@ def explore(node, maze, vm):  # DFS, explore adjacent nodes and backtrack at dea
     for direction in [NORTH, SOUTH, WEST, EAST]:
         dx, dy = dxdy[direction]
         new = (node[0] + dx, node[1] + dy)
-        if maze[new] in {PATH, TARGET}:
-            draw_maze(maze, node=new, direction=direction)
-            time.sleep(0.032)
         if maze[new] == UNEXPLORED:
             # issue move command to robot and read status (first output)
             status = vm.run(inputs=[direction])[0]
             if status == 0:  # hit wall
                 maze[new] = WALL
+                draw_maze(maze, node=node, direction=direction)
+                time.sleep(0.015)
             elif status > 0:  # move successful
                 maze[new] = TARGET if status == 2 else PATH
-                draw_maze(maze, node=new, direction=direction)
-                time.sleep(0.032)
                 explore(new, maze, vm)
                 # backtrack by issuing move command in opposite direction
                 vm.run(inputs=[opposite[direction]])[0]
@@ -179,4 +238,45 @@ if __name__ == "__main__":
     Found Oxygen System at (-16, 12)
     Shortest path 241
     Max distance from OS: 322
+    ╭───────────┬─────────┬─────────┬───────╮
+    │           │┏━━━━━━━┓│         │       │
+    │ ╭──── ╭───╯┃╭─────╮┃╰─╮ │ ────╯ ──╮ │ │
+    │ │     │┏━━━┛│     │┗━┓│ │         │ │ │
+    │ │ ╭───╯┃╭─┬─┴── │ ├──┃│ ╰───┬───╮ │ ╰─┤
+    │ │ │┏━━━┛│ │┏━┓  │ │┏━┛│     │   │ │   │
+    │ ├─╯┃╭─┬─╯ │┃│┃──┴─┤┃──┴─┬───╯ │ ╰─┴── │
+    │ │┏━┛│ │┏━┓│┃│┗━━━┓│┗━━━┓│     │       │
+    │ │┃╭─┤ │┃│┃│┃├───╮┃├────┃│ ────┤ ╭───╮ │
+    │ │┃│╻│┏━┛│┃│┃│   │┃│┏━━━┛│     │ │   │ │
+    │ │┃│┃│┃──┤┃│┃╰── │┃│┃╭───╯ ──╮ ╰─╯ │ │ │
+    │┏━┛│┗━┛  │┗━┛    │┃│┃│       │     │ │ │
+    │┃╭─╯ ╭───┴───────┤┃│┃╰───┬─╮ ╰───┬─╯ │ │
+    │┃│   │┏━━━━━━━━━┓│┃│┗━━━┓│ │     │   │ │
+    │┃╰─╮ │┃│ ╭───┬─╮┃│┃├────┃│ ╰── ╭─╯ ╭─┤ │
+    │┗━┓│ │┃│ │┏━┓│ │┗━┛│┏━━━┛│     │   │ │ │
+    ├──┃│ │┃╰─╯┃│┃│ ╰── │┃──┬─┴─╮ ╭─╯ ╭─╯ │ │
+    │┏━┛│ │┗━━━┛│┃│     │┗━┓│┏━┓│ │   │   │ │
+    │┃──┴─┤ ╭───╯┃├─────┤ │┃│┃│┃│ │ ╭─┴── │ │
+    │┗━━━┓│ │┏━━━┛│┏━━━┓│ │┗━┛│┃│ │ │     │ │
+    ├─┬──┃│ │┃│ ╭─╯┃╭─╮┃╰─┤ ╭─┤┃╰─┤ │ ╭───╯ │
+    │ │┏━┛│ │┃│ │┏━┛│ │┗━╸│ │ │┗━┓│ │ │     │
+    │ │┃──┴─╯┃├─╯┃╭─╯ ├───╯ │ ├──┃│ │ │ ────┤
+    │ │┗━━━━━┛│┏━┛│   │     │ │┏━┛│ │       │
+    │ ├─────╮ │┃──┼── │ ╭───╯ │┃╭─╯ ╰─┬───╮ │
+    │ │     │ │┗━┓│   │ │     │┃│     │   │ │
+    │ │ │ ──╯ ├─╮┃│ ──╯ ╰──── │┃├──── │ ──╯ │
+    │ │ │     │ │┃│           │┃│     │     │
+    │ │ ├─────┤ │┃╰───┬──── ╭─╯┃│ ────┴─╮ ──┤
+    │   │     │ │┗━━━┓│     │┏━┛│       │   │
+    │ ╭─┴── │ │ ├───╮┃╰─────╯┃╭─╯ ╭───╮ ├── │
+    │ │     │ │ │   │┗━━━━━━━┛│   │   │ │   │
+    │ ╰─╮ ╭─┤ │ │ │ ╰───┬─────┴─╮ ├── │ │ ╭─┤
+    │   │ │ │ │   │     │       │ │   │ │ │ │
+    ├─╮ │ │ │ │ ──┴─╮ ──╯ │ ╭── │ │ │ │ │ │ │
+    │ │ │ │   │     │     │ │   │   │ │ │ │ │
+    │ │ │ │ ──┼──── ╰─┬───┤ ╰─╮ ├───┤ │ │ │ │
+    │   │ │   │       │   │   │ │   │ │ │   │
+    │ ──╯ ├── ╰───────╯ │ ╰── │ │ │ ╰─╯ ├── │
+    │     │             │     │   │     │   │
+    ╰─────┴─────────────┴─────┴───┴─────┴───╯    
     """
